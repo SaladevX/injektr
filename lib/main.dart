@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const GLP1App());
+void main() {
+  runApp(const InjektrApp());
 }
 
-class GLP1App extends StatelessWidget {
-  const GLP1App({super.key});
+class InjektrApp extends StatelessWidget {
+  const InjektrApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Injektr',
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
       ),
       home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
