@@ -1,0 +1,105 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+.packages
+flutter_*.png
+generated_plugin_registrant.dart
+
+# Hive generated adapters
+**/*.g.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.properties
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/App.framework
+ios/Flutter/engine/
+ios/.generated/
+
+# Web (if enabled)
+web/.dart_tool/
+web/build/
+
+# macOS
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/.symlinks/
+macos/.dart_tool/
+
+# Windows
+windows/flutter/ephemeral/
+windows/.dart_tool/
+
+# Linux
+linux/flutter/ephemeral/
+linux/.dart_tool/
+
+# VS Code
+.vscode/
+.idea/
+
+# Xcode
+xcuserdata/
+*.xcworkspace
+*.xcuserstate
+
+# Build Runner (Hive, Freezed, etc.)
+*.g.dart
+*.freezed.dart
+
+# Environment / Secrets (optional)
+.env
+.env.*
+
+# Misc
+*.iml
+*.swp
+*.lock
+*.DS_Store
+*.bak
+*.tmp
