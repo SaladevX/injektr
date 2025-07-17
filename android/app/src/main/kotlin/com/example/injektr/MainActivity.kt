@@ -1,4 +1,4 @@
-package com.example.injektr
+package app.injektr
 
 import io.flutter.embedding.android.FlutterActivity
 
