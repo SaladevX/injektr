@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'theme/theme_provider.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const InjektrApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const InjektrApp(),
+    ),
+  );
 }
 
 class InjektrApp extends StatelessWidget {
@@ -10,12 +17,21 @@ class InjektrApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    final isDark = themeProvider.isDarkMode;
+    final isOled = themeProvider.isOledBlack;
+
     return MaterialApp(
       title: 'Injektr',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      theme: ThemeData.light(),
+      darkTheme: isOled
+          ? ThemeData.dark().copyWith(
+              scaffoldBackgroundColor: Colors.black,
+              canvasColor: Colors.black,
+            )
+          : ThemeData.dark(),
       home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
     );
