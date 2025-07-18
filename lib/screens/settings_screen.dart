@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkMode = false;
-  bool _isOledBlack = false;
-
-  @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -26,29 +22,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             title: const Text('Dark Mode'),
-            value: _isDarkMode,
+            value: themeProvider.isDarkMode,
             onChanged: (bool value) {
-              setState(() {
-                _isDarkMode = value;
-                // If dark mode is turned off, disable OLED Black
-                if (!value) {
-                  _isOledBlack = false;
-                }
-              });
+              themeProvider.setDarkMode(value);
             },
             secondary: const Icon(Icons.dark_mode),
           ),
           SwitchListTile(
             title: const Text('OLED Black'),
             subtitle: const Text('Only enabled in dark mode'),
-            value: _isOledBlack,
-            onChanged: _isDarkMode
+            value: themeProvider.isOledBlack,
+            onChanged: themeProvider.isDarkMode
                 ? (bool value) {
-                    setState(() {
-                      _isOledBlack = value;
-                    });
+                    themeProvider.setOledBlack(value);
                   }
-                : null, // disables the toggle when dark mode is off
+                : null,
             secondary: const Icon(Icons.brightness_3),
           ),
         ],
