@@ -1,139 +1,183 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DoseCalcScreen extends StatefulWidget {
-  const DoseCalcScreen({super.key});
+class DoseCalculatorScreen extends StatefulWidget {
+  const DoseCalculatorScreen({super.key});
 
   @override
-  State<DoseCalcScreen> createState() => _DoseCalcScreenState();
+  State<DoseCalculatorScreen> createState() => _DoseCalculatorScreenState();
 }
 
-class _DoseCalcScreenState extends State<DoseCalcScreen> {
-  // Syringe section
-  String _selectedSyringeType = 'U-100';
-  String _selectedUnits = '100';
-  final _tickMarksController = TextEditingController();
+class _DoseCalculatorScreenState extends State<DoseCalculatorScreen> {
+  final _formKey = GlobalKey<FormState>();
 
-  // Vial section
+  String _syringeType = 'U-100';
+  String _units = '100';
+  String _tickMarks = '100';
   final _waterController = TextEditingController();
-  final _peptideMgController = TextEditingController();
+  final _peptideController = TextEditingController();
+  final _desiredDoseController = TextEditingController();
 
-  // Desired dose
-  final _desiredMcgController = TextEditingController();
+  String _result = '';
 
   @override
   void initState() {
     super.initState();
-    _updateDefaultTickMarks(); // set initial value
+    _loadLastResult();
   }
 
-  void _updateDefaultTickMarks() {
-    if (_selectedSyringeType == 'U-100') {
-      _tickMarksController.text = '100';
-    } else if (_selectedSyringeType == 'U-40') {
-      _tickMarksController.text = '40';
+  Future<void> _saveResult(String result) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_calculation_result', result);
+  }
+
+  Future<void> _loadLastResult() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastResult = prefs.getString('last_calculation_result');
+    if (lastResult != null) {
+      setState(() {
+        _result = lastResult;
+      });
     }
   }
 
-  @override
-  void dispose() {
-    _tickMarksController.dispose();
-    _waterController.dispose();
-    _peptideMgController.dispose();
-    _desiredMcgController.dispose();
-    super.dispose();
-  }
+  void _calculateDose() {
+    final double? water = double.tryParse(_waterController.text);
+    final double? peptide = double.tryParse(_peptideController.text);
+    final double? desiredMcg = double.tryParse(_desiredDoseController.text);
+    final int? tickMarks = int.tryParse(_tickMarks);
 
-  Widget _sectionTitle(String text) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12.0),
-    child: Text(
-      text,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    ),
-  );
+    if (water == null ||
+        water <= 0 ||
+        peptide == null ||
+        peptide <= 0 ||
+        desiredMcg == null ||
+        desiredMcg <= 0 ||
+        tickMarks == null ||
+        tickMarks <= 0) {
+      return;
+    }
 
-  Widget _dropdownField<T>({
-    required String label,
-    required T value,
-    required List<T> items,
-    required void Function(T?) onChanged,
-  }) {
-    return DropdownButtonFormField<T>(
-      value: value,
-      decoration: InputDecoration(labelText: label),
-      items: items.map((item) {
-        return DropdownMenuItem<T>(value: item, child: Text(item.toString()));
-      }).toList(),
-      onChanged: onChanged,
-    );
-  }
+    // Calculation logic
+    final doseMg = desiredMcg / 1000;
+    final concentrationPerMl = peptide / water;
+    final mlPerDose = doseMg / concentrationPerMl;
+    final tickMarkVolume = 1 / tickMarks;
+    final tickMarksToUse = mlPerDose / tickMarkVolume;
 
-  Widget _textField({
-    required String label,
-    required TextEditingController controller,
-    TextInputType keyboardType = TextInputType.number,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(labelText: label),
-    );
+    setState(() {
+      _result = '${tickMarksToUse.toStringAsFixed(1)} tick marks';
+    });
+
+    _saveResult(_result);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Dose Calculator')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            _sectionTitle('Syringe Details'),
-            _dropdownField<String>(
-              label: 'Type',
-              value: _selectedSyringeType,
-              items: const ['U-100', 'U-40'],
+            const Text(
+              'Syringe Details',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            DropdownButtonFormField<String>(
+              value: _syringeType,
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: ['U-100', 'U-40']
+                  .map(
+                    (type) => DropdownMenuItem(value: type, child: Text(type)),
+                  )
+                  .toList(),
               onChanged: (val) {
                 setState(() {
-                  _selectedSyringeType = val!;
-                  _updateDefaultTickMarks();
+                  _syringeType = val!;
+                  _tickMarks = val == 'U-100' ? '100' : '40';
                 });
               },
             ),
-            _dropdownField<String>(
-              label: 'Units',
-              value: _selectedUnits,
-              items: const ['100', '50', '30'],
-              onChanged: (val) {
-                setState(() => _selectedUnits = val!);
+            DropdownButtonFormField<String>(
+              value: _units,
+              decoration: const InputDecoration(labelText: 'Units'),
+              items: ['100', '50', '30']
+                  .map(
+                    (unit) => DropdownMenuItem(value: unit, child: Text(unit)),
+                  )
+                  .toList(),
+              onChanged: (val) => setState(() => _units = val!),
+            ),
+            TextFormField(
+              initialValue: _tickMarks,
+              decoration: const InputDecoration(labelText: 'Tick marks'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                final parsed = int.tryParse(value ?? '');
+                if (parsed == null || parsed <= 0)
+                  return 'Enter valid tick marks';
+                return null;
+              },
+              onChanged: (val) => _tickMarks = val,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Vial Details',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextFormField(
+              controller: _waterController,
+              decoration: const InputDecoration(labelText: 'Water (mL)'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                final parsed = double.tryParse(value ?? '');
+                if (parsed == null || parsed <= 0)
+                  return 'Enter valid water amount';
+                return null;
               },
             ),
-            _textField(label: 'Tick marks', controller: _tickMarksController),
-
-            _sectionTitle('Vial Details'),
-            _textField(label: 'Water (mL)', controller: _waterController),
-            _textField(label: 'Peptide (mg)', controller: _peptideMgController),
-
-            _sectionTitle('Desired Dose'),
-            _textField(
-              label: 'Peptide (mcg)',
-              controller: _desiredMcgController,
+            TextFormField(
+              controller: _peptideController,
+              decoration: const InputDecoration(labelText: 'Peptide (mg)'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                final parsed = double.tryParse(value ?? '');
+                if (parsed == null || parsed <= 0)
+                  return 'Enter valid peptide amount';
+                return null;
+              },
             ),
-
+            const SizedBox(height: 16),
+            const Text(
+              'Desired Dose',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextFormField(
+              controller: _desiredDoseController,
+              decoration: const InputDecoration(labelText: 'Peptide (mcg)'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                final parsed = double.tryParse(value ?? '');
+                if (parsed == null || parsed <= 0) return 'Enter valid dose';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _calculateDose();
+                }
+              },
+              child: const Text('Calculate'),
+            ),
             const SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: implement actual calculation logic
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Calculation logic coming soon!'),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.calculate),
-                label: const Text('Calculate Dose'),
-              ),
+            Text(
+              'Result: $_result',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),

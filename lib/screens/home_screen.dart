@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.of(context).pop(); // Close drawer
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const DoseCalcScreen(),
+                    builder: (context) => const DoseCalculatorScreen(),
                   ),
                 );
               },
