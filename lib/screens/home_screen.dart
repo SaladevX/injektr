@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -6,6 +9,22 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isOled = context.watch<ThemeProvider>().isOledBlack;
+
+    final fabBackground = isOled
+        ? Colors.black
+        : isDark
+        ? theme.colorScheme.secondaryContainer
+        : theme.colorScheme.primary;
+
+    final fabForeground = isOled
+        ? Colors.white
+        : isDark
+        ? Colors.black
+        : Colors.white;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Injektr')),
       drawer: Drawer(
@@ -47,6 +66,37 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: const Center(child: Text('Home Page')),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        backgroundColor: fabBackground,
+        foregroundColor: fabForeground,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.4,
+        spacing: 12,
+        spaceBetweenChildren: 8,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.sick),
+            // backgroundColor: fabBackground,
+            // foregroundColor: fabForeground,
+            label: 'Add Side Effect',
+            onTap: () {
+              debugPrint('Add Side Effect');
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.medical_services),
+            // backgroundColor: fabBackground,
+            // foregroundColor: fabForeground,
+            label: 'Add Injection',
+            onTap: () {
+              // TODO: Navigate or show dialog
+              debugPrint('Add Injection');
+            },
+          ),
+        ],
+      ),
     );
   }
 }
