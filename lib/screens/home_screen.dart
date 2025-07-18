@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import 'settings_screen.dart';
 import 'dose_calculator.dart';
+import 'dose_calculation_history.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,18 @@ class HomeScreen extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const DoseCalculatorScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Dose History'),
+              onTap: () {
+                Navigator.of(context).pop(); // Close drawer
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const DoseCalculationHistoryScreen(),
                   ),
                 );
               },

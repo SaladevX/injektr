@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dose_calculation_history.dart';
 
 class DoseCalculatorScreen extends StatefulWidget {
   const DoseCalculatorScreen({super.key});
@@ -70,6 +71,31 @@ class _DoseCalculatorScreenState extends State<DoseCalculatorScreen> {
     });
 
     _saveResult(_result);
+  }
+
+  Future<void> _saveCalculation() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final result = _result; // assuming _result is your final string result
+
+    if (result.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Nothing to save")));
+      return;
+    }
+
+    // Load existing history
+    final history = prefs.getStringList('dose_history') ?? [];
+
+    // Add the new result (optionally with timestamp)
+    history.add("${DateTime.now().toIso8601String()} - $result");
+
+    await prefs.setStringList('dose_history', history);
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Calculation saved")));
   }
 
   @override
@@ -166,13 +192,44 @@ class _DoseCalculatorScreenState extends State<DoseCalculatorScreen> {
               },
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _calculateDose();
-                }
-              },
-              child: const Text('Calculate'),
+            Row(
+              children: [
+                // Calculate button takes ~60% of width
+                Expanded(
+                  flex: 6,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _calculateDose();
+                      }
+                    },
+                    child: const Text('Calculate'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Save button (icon only)
+                IconButton(
+                  icon: const Icon(Icons.save),
+                  tooltip: "Save result",
+                  onPressed: _saveCalculation,
+                ),
+
+                // History button (icon only)
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  tooltip: "View history",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const DoseCalculationHistoryScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             Text(
