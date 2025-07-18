@@ -3,6 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import 'settings_screen.dart';
+import 'dose_calculator.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -39,6 +40,18 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.calculate),
+              title: const Text('Dose Calculator'),
+              onTap: () {
+                Navigator.of(context).pop(); // Close drawer
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const DoseCalculatorScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
@@ -66,36 +79,39 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: const Center(child: Text('Home Page')),
-      floatingActionButton: SpeedDial(
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: fabBackground,
-        foregroundColor: fabForeground,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.4,
-        spacing: 12,
-        spaceBetweenChildren: 8,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.sick),
-            // backgroundColor: fabBackground,
-            // foregroundColor: fabForeground,
-            label: 'Add Side Effect',
-            onTap: () {
-              debugPrint('Add Side Effect');
-            },
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.medical_services),
-            // backgroundColor: fabBackground,
-            // foregroundColor: fabForeground,
-            label: 'Add Injection',
-            onTap: () {
-              // TODO: Navigate or show dialog
-              debugPrint('Add Injection');
-            },
-          ),
-        ],
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 12.0, right: 8.0),
+        child: SpeedDial(
+          icon: Icons.add,
+          activeIcon: Icons.close,
+          backgroundColor: fabBackground,
+          foregroundColor: fabForeground,
+          overlayColor: Colors.black,
+          overlayOpacity: 0.4,
+          spacing: 12,
+          spaceBetweenChildren: 8,
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.sick),
+              // backgroundColor: fabBackground,
+              // foregroundColor: fabForeground,
+              label: 'Add Side Effect',
+              onTap: () {
+                debugPrint('Add Side Effect');
+              },
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.medical_services),
+              // backgroundColor: fabBackground,
+              // foregroundColor: fabForeground,
+              label: 'Add Injection',
+              onTap: () {
+                // TODO: Navigate or show dialog
+                debugPrint('Add Injection');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
